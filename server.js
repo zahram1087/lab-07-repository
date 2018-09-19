@@ -26,28 +26,31 @@ function searchToLatLong(query) {
   const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${query}&key=${process.env.GEOCODE_API_KEY}`;
   return superagent.get(url)
     .then(res => {
-      return {
-        search_query: query,
-        formatted_query: res.body.results[0].formatted_address,
-        latitude: res.body.results[0].geometry.location.lat,
-        longitude: res.body.results[0].geometry.location.lng
-      }
+      return new Location(res);
+
     })
     .catch(error => handleError(error));
+}
+function Location(res) {
+  console.log(res);
+  this.search_query = res.query;
+  this.formatted_query = res.body.results[0].formatted_address;
+  this.latitude = res.body.results[0].geometry.location.lat;
+  this.longitude = res.body.results[0].geometry.location.lng;
 }
 //sending the results to dark-sky
 function getWeather(request, response) {
   const url = `https://api.darksky.net/forecast/${process.env.WEATHER_API_KEY}/${request.query.data.latitude},${request.query.data.longitude}`;
   return superagent.get(url)
-    .then( result => {
+    .then(result => {
       const weatherSummaries = [];
-      result.body.daily.data.forEach( day => {
+      result.body.daily.data.forEach(day => {
         const summary = new Weather(day);
         weatherSummaries.push(summary);
       });
       response.send(weatherSummaries)
     })
-    .catch( error => handleError(error, response));
+    .catch(error => handleError(error, response));
 
 }
 
