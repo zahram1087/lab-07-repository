@@ -9,8 +9,9 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+//Acts as a bridge that between the client and network
 app.use(cors());
-
+//submitting the reqquest
 app.get('/location', (request, response) => {
   searchToLatLong(request.query.data)
     .then(location => response.send(location))
@@ -20,7 +21,7 @@ app.get('/location', (request, response) => {
 app.get('/weather', getWeather);
 
 app.listen(PORT, () => console.log(`Listening on ${PORT}`));
-
+//creating the response
 function searchToLatLong(query) {
   const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${query}&key=${process.env.GEOCODE_API_KEY}`;
   return superagent.get(url)
@@ -34,7 +35,7 @@ function searchToLatLong(query) {
     })
     .catch(error => handleError(error));
 }
-
+//sending the results to dark-sky
 function getWeather(request, response) {
   const url = `https://api.darksky.net/forecast/${process.env.WEATHER_API_KEY}/${request.query.data.latitude},${request.query.data.longitude}`;
   return superagent.get(url)
