@@ -38,15 +38,14 @@ function Location(res) {
   this.latitude = res.body.results[0].geometry.location.lat;
   this.longitude = res.body.results[0].geometry.location.lng;
 }
+
 //sending the results to dark-sky
 function getWeather(request, response) {
   const url = `https://api.darksky.net/forecast/${process.env.WEATHER_API_KEY}/${request.query.data.latitude},${request.query.data.longitude}`;
   return superagent.get(url)
     .then(result => {
-      const weatherSummaries = [];
-      result.body.daily.data.forEach(day => {
-        const summary = new Weather(day);
-        weatherSummaries.push(summary);
+      const weatherSummaries = result.body.daily.data.map(day => {
+        return new Weather(day);
       });
       response.send(weatherSummaries)
     })
