@@ -32,7 +32,6 @@ function searchToLatLong(query) {
     .catch(error => handleError(error));
 }
 function Location(res) {
-  console.log(res);
   this.search_query = res.query;
   this.formatted_query = res.body.results[0].formatted_address;
   this.latitude = res.body.results[0].geometry.location.lat;
@@ -62,3 +61,31 @@ function Weather(day) {
   this.time = new Date(day.time * 1000).toString().slice(0, 15);
   this.forecast = day.summary;
 }
+
+//Yelp API
+
+app.get('/yelp', getYelp);
+
+function getYelp(request, response) {
+  const url = `https://api.yelp.com/v3/businesses/search?location=${request.query.data.search_query}`;
+
+  console.log('here');
+  superagent.get(url)
+    .set('Authorization', `Bearer ${process.env.YELP_API_KEY}`)
+    .then(result => {
+      const yelpSummaries = result.body.businesses.map(ele => {
+        return new Yelp(ele)
+      })
+      response.send(yelpSummaries);
+    })
+    .catch(error => handleError(error, response));
+}
+
+function Yelp(business){
+  this.name = business.name;
+  this.image_url = business.image_url;
+  this.price = business.price;
+  this.rating = business.rating;
+  this.url = business.url
+}
+
