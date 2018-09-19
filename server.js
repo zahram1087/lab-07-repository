@@ -67,9 +67,8 @@ function Weather(day) {
 app.get('/yelp', getYelp);
 
 function getYelp(request, response) {
+  console.log(`yelp`, request.query.data.search_query);
   const url = `https://api.yelp.com/v3/businesses/search?location=${request.query.data.search_query}`;
-
-  console.log('here');
   superagent.get(url)
     .set('Authorization', `Bearer ${process.env.YELP_API_KEY}`)
     .then(result => {
@@ -81,7 +80,7 @@ function getYelp(request, response) {
     .catch(error => handleError(error, response));
 }
 
-function Yelp(business){
+function Yelp(business) {
   this.name = business.name;
   this.image_url = business.image_url;
   this.price = business.price;
@@ -89,3 +88,30 @@ function Yelp(business){
   this.url = business.url
 }
 
+//Movies API
+
+app.get('/movies', getMovie);
+function getMovie(request, response) {
+  console.log(`movies`, request.query.data.search_query);
+  const url = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.THE_MOVIE_DB_API}&query=${request.query.data.search_query}`;
+  // console.log( `this`);
+  superagent.get(url)
+    .then(result => {
+      console.log(result.body);
+      const movieSummaries = result.body.results.map(ele =>{
+        return new Movie(ele);
+      });
+      response.send(movieSummaries);
+      console.log(movieSummaries);
+    })
+    .catch(error => handleError(error, response));
+}
+function Movie(movie){
+  this.title= movie.title;
+  this.overview= movie.overview;
+  this.average_votes= movie.vote_average;
+  this.total_votes= movie.vote_count;
+  this.image_url= movie.poster_path;
+  this.popularity= movie.popularity;
+  this.released_on= movie.release_date;
+}
