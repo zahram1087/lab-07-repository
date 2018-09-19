@@ -24,7 +24,6 @@ app.listen(PORT, () => console.log(`Listening on ${PORT}`));
 //creating the response
 function searchToLatLong(query) {
   const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${query}&key=${process.env.GEOCODE_API_KEY}`;
-  console.log(url);
   return superagent.get(url)
     .then(res => {
       return {
@@ -52,9 +51,9 @@ function getWeather(request, response) {
 
 }
 
-function handleError(err, res) {
+function handleError(err, result) {
   console.error(err);
-  if (res) res.status(500).send('Sorry, something went wrong');
+  if (result) result.status(500).send('Sorry, something went wrong');
 }
 
 function Weather(day) {
